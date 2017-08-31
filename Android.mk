@@ -3,6 +3,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE_TAGS := optional
+LOCAL_JACK_ENABLED := disabled
 
 #################################################
 # built as system java library

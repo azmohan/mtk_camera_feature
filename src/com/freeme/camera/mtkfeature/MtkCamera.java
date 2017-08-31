@@ -12,151 +12,146 @@ import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.ShutterCallback;
+import android.hardware.Camera.FbOriginalCallback;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import java.io.IOException;
 
 import android.hardware.Camera.GestureCallback;
-import android.hardware.Camera.SmileCallback;
 
 public class MtkCamera {
-    private static final String TAG = "AndroidCamera";
+	private static final String TAG = "AndroidCamera";
 
-    protected Camera mCamera = null;
+	protected Camera mCamera = null;
 
-    private class GestureCallbackImpl implements GestureCallback {
-        GestureListener mListener;
+	private class GestureCallbackImpl implements GestureCallback {
+		GestureListener mListener;
 
-        public GestureCallbackImpl(GestureListener listener) {
-            mListener = listener;
-        }
+		public GestureCallbackImpl(GestureListener listener) {
+			mListener = listener;
+		}
 
-        @Override
-            public void onGesture() {
-                // Because stopGS will set lister is null,
-                // at this time the onGesture is on the road ,so will JE
-                if (mListener != null) {
-                    mListener.onGesture();
-                }
-            }
-    }
+		@Override
+		public void onGesture() {
+			// Because stopGS will set lister is null,
+			// at this time the onGesture is on the road ,so will JE
+			if (mListener != null) {
+				mListener.onGesture();
+			}
+		}
+	}
 
-    private class SmileCallbackImpl implements SmileCallback {
-        SmileListener mListener;
+	private class FbOriginalCallbackImpl implements FbOriginalCallback {
+		FbOriginalListener mListener;
 
-        public SmileCallbackImpl(SmileListener listener) {
-            mListener = listener;
-        }
+		public FbOriginalCallbackImpl(FbOriginalListener listener) {
+			mListener = listener;
+		}
 
-        @Override
-            public void onSmile() {
-                // Because stopGS will set lister is null,
-                // at this time the onGesture is on the road ,so will JE
-                if (mListener != null) {
-                    mListener.onSmile();
-                }
-            }
-    }
+		@Override
+		public void onCapture(byte[] data) {
+			Log.d(TAG, "cFBCallback,[onOriginalCallback],data.length = "
+					+ data.length);
+			if (mListener != null) {
+				mListener.onOriginalCallback(data);
+			}
+		}
 
-    public interface GestureListener {
-        void onGesture();
-    }
+	}
 
-    public interface SmileListener {
-        void onSmile();
-    }
+	public interface GestureListener {
+		void onGesture();
+	}
 
-    public static void assertError(boolean cond) {
-        if (!cond) {
-            throw new AssertionError();
-        }
-    }
+	public interface FbOriginalListener {
+		public void onOriginalCallback(byte[] data);
+	}
 
-    public MtkCamera(Camera camera) {
-        assertError(null != camera);
-        mCamera = camera;
-    }
+	public static void assertError(boolean cond) {
+		if (!cond) {
+			throw new AssertionError();
+		}
+	}
 
-    public Camera getInstance() {
-        return mCamera;
-    }
+	public MtkCamera(Camera camera) {
+		assertError(null != camera);
+		mCamera = camera;
+	}
 
-    public void stopSmileDetection() {
-        Log.i(TAG, "[stopSmileDetection]...");
-        mCamera.stopSmileDetection();
-    }
+	public Camera getInstance() {
+		return mCamera;
+	}
 
-    public void stopGestureDetection() {
-        Log.i(TAG, "[stopGestureDetection]...");
-        try {
-            mCamera.stopGestureDetection();
-        } catch(Exception e) {
-            Log.i(TAG,"Exception :"+e.toString());
-        }
-    }
+	public void stopGestureDetection() {
+		Log.i(TAG, "[stopGestureDetection]...");
+		try {
+			mCamera.stopGestureDetection();
+		} catch (Exception e) {
+			Log.i(TAG, "Exception :" + e.toString());
+		}
+	}
 
-    public void lock() {
-        Log.i(TAG, "[lock]...");
-        mCamera.lock();
-    }
+	public void lock() {
+		Log.i(TAG, "[lock]...");
+		mCamera.lock();
+	}
 
-    public Parameters getParameters() {
-        Log.i(TAG, "[getParameters]...");
-        return mCamera.getParameters();
-    }
+	public Parameters getParameters() {
+		Log.i(TAG, "[getParameters]...");
+		return mCamera.getParameters();
+	}
 
-    public void release() {
-        Log.i(TAG, "[release]...");
-        mCamera.release();
-    }
+	public void release() {
+		Log.i(TAG, "[release]...");
+		mCamera.release();
+	}
 
-    public void reconnect() throws IOException {
-        Log.i(TAG, "[reconnect]...");
-        mCamera.reconnect();
-    }
+	public void reconnect() throws IOException {
+		Log.i(TAG, "[reconnect]...");
+		mCamera.reconnect();
+	}
 
-    public void setContext(Context context) {
-        Log.i(TAG, "[setContext]do nothing...");
-    }
+	public void setContext(Context context) {
+		Log.i(TAG, "[setContext]do nothing...");
+	}
 
-    public void setParameters(Parameters params) {
-        Log.i(TAG, "[setParameters]...");
-        mCamera.setParameters(params);
-    }
+	public void setParameters(Parameters params) {
+		Log.i(TAG, "[setParameters]...");
+		mCamera.setParameters(params);
+	}
 
-    public void setSmileCallback(SmileListener listener) {
-        Log.i(TAG, "[setSmileCallback]...");
-        mCamera.setSmileCallback(listener != null ? new SmileCallbackImpl(
-                    listener) : null);
+	public void setGestureCallback(GestureListener listener) {
+		Log.i(TAG, "[setGestureCallback]...");
+		try {
+			mCamera.setGestureCallback(listener != null ? new GestureCallbackImpl(
+					listener) : null);
+		} catch (Exception e) {
+			Log.i(TAG, "Exception :" + e.toString());
+		}
+	}
 
-    }
+	public void setFbOriginalCallback(FbOriginalListener listener) {
+		Log.i(TAG, "[setFbOriginalCallback]...");
+		try {
+			mCamera.setFbOriginalCallback(listener != null ? new FbOriginalCallbackImpl(
+					listener) : null);
+		} catch (Exception e) {
+			Log.i(TAG, "Exception : " + e.toString());
+		}
 
-    public void setGestureCallback(GestureListener listener) {
-        Log.i(TAG, "[setGestureCallback]...");
-        try {
-            mCamera.setGestureCallback(listener != null ? new GestureCallbackImpl(
-                        listener) : null);
-        } catch(Exception e) {
-            Log.i(TAG,"Exception :"+e.toString());
-        }
-    }
+	}
 
-    public void startSmileDetection() {
-        Log.i(TAG, "[startSmileDetection]...");
-        mCamera.startSmileDetection();
-    }
+	public void startGestureDetection() {
+		Log.i(TAG, "[startGestureDetection]...");
+		try {
+			mCamera.startGestureDetection();
+		} catch (Exception e) {
+			Log.i(TAG, "Exception :" + e.toString());
+		}
+	}
 
-    public void startGestureDetection() {
-        Log.i(TAG, "[startGestureDetection]...");
-        try {
-            mCamera.startGestureDetection();
-        } catch(Exception e) {
-            Log.i(TAG,"Exception :"+e.toString());
-        }
-    }
-
-    public void unlock() {
-        Log.i(TAG, "[unlock]...");
-        mCamera.unlock();
-    }
+	public void unlock() {
+		Log.i(TAG, "[unlock]...");
+		mCamera.unlock();
+	}
 }
