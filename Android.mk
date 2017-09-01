@@ -4,6 +4,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE_TAGS := optional
 LOCAL_JACK_ENABLED := disabled
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 
 #################################################
 # built as system java library
